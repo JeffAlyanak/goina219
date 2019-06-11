@@ -1,6 +1,8 @@
 package ina219
 
 import (
+	"math"
+
 	"github.com/NeuralSpaz/i2c"
 )
 
@@ -61,17 +63,14 @@ func Config(voltage uint16, gain uint16, busADC uint16, shuntADC uint16, mode ui
 }
 
 // CalibrationValue Calculate the config word (uint16) for the calibration register.
-func CalibrationValue(maxVolt float32, shuntOhms float32) uint16 {
+func CalibrationValue(maxVolt float64, shuntOhms float64) uint16 {
 	currentLSB := (maxVolt / shuntOhms) / currentLSBFactor
 
-	if currentLSB < (shuntOhms * maxCalibrationVal) {
-		currentLSB = shuntOhms * maxCalibrationVal
-	}
-	return uint16(currentLSB)
+	return uint16(math.Trunc(0.04096 / currentLSB * shuntOhms))
 }
 
 // New Initialize and return a new ina219 device.
-func New(address uint8, i2cbus byte, shuntOhms float32, config uint16) (*INA219, error) {
+func New(address uint8, i2cbus byte, shuntOhms float64, config uint16) (*INA219, error) {
 	deviceBus := i2c.NewI2CBus(i2cbus)
 	ina := &INA219{
 		I2C:         deviceBus,

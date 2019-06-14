@@ -77,32 +77,37 @@ fmt.Printf(
 
 ## Configuration Settings
 
-Voltage range options:
+### Voltage range options:
 
+|Range|Parameter|
+|---|---|
+|16V|goina219.Range16V|
+|32V|goina219.Range16V|
 
-* Range16V
-* Range32V
+### Gain options:
 
-Gain options:
+|Gain|Parameter|
+|---|---|
+|40mV|goina219.Gain40MV|
+|80mV|goina219.Gain80MV|
+|160mV|goina219.Gain160MV|
+|320mV|goina219.Gain320MV|
 
-* Gain40MV
-* Gain80MV
-* Gain160MV 
-* Gain320MV
+### ADC sampling modes:
 
-ADC sampling modes:
-
-* Adc9Bit, _9-Bit — 84us_.
-* Adc10Bit, _10-Bit— 148us_.
-* Adc11Bit, _11-Bit— 2766usv_.
-* Adc12Bit, _12-Bit— 532us_.
-* Adc2Samp, _2 samples at 12-Bit,— 1.06ms_.
-* Adc4Samp, _4 samples at 12-Bit,— 2.13ms_.
-* Adc8Samp, _8 samples at 12-Bit,— 4.26ms_.
-* Adc16Samp, _16 samples at 12-Bit,— 8.51ms_
-* Adc32Samp, _32 samples at 12-Bit,— 17.02ms_.
-* Adc64Samp, _64 samples at 12-Bit,— 34.05ms_.
-* Adc128Samp, _128 samples at 12-Bit,— 68.10ms_.
+|Samples|Bit-depth|Sample Time|Parameter|
+|---|---|---|---|
+|1|9-bit|84μs|goina219.Adc9Bit|
+|1|10-bit|148μs|goina219.Adc10Bit|
+|1|11-bit|276μs|goina219.Adc11Bit|
+|1|12-bit|532μs|goina219.Adc12Bit|
+|2|12-bit|1060μs|goina219.Adc2Samp|
+|4|12-bit|2130μs|goina219.Adc4Samp|
+|8|12-bit|4260μs|goina219.Adc8Samp|
+|16|12-bit|8510μs|goina219.Adc16Samp|
+|32|12-bit|17020μs|goina219.Adc32Samp|
+|64|12-bit|34050μs|goina219.Adc64Samp|
+|128|12-bit|68100μs|goina219.Adc128Samp|
 
 ## Contributing
 Merge requests are welcome. For major changes, please open an issue first to discuss what you would like to change.

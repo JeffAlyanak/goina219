@@ -1,6 +1,7 @@
-package ina219
+package goina219
 
 import (
+	"fmt"
 	"math"
 
 	"github.com/NeuralSpaz/i2c"
@@ -13,7 +14,6 @@ const powerRegister = 0x03
 const currentRegister = 0x04
 const calibrationRegister = 0x05
 
-const currentLSBFactor = 0x7FFF // See datasheet for details on calibration
 const maxCalibrationVal = 0xFFFE
 
 const Range16V uint16 = 0 // Voltage range values
@@ -45,6 +45,17 @@ const ModeShuntVoltageCont uint16 = 5
 const ModeBusVoltageCont uint16 = 6
 const ModeContinuous uint16 = 7
 
+var currentLSB float64
+var powerLSB float64
+var maxCurrent float64
+var currentOverflow float64
+var maxShuntV float64
+var shuntOverflow float64
+var maxPower float64
+
+var CurrentDivider float64  // mA
+var PowerMultiplier float64 // mW
+
 type INA219 struct {
 	I2C         i2c.I2CBus
 	Bus         float64
@@ -63,19 +74,66 @@ func Config(voltage uint16, gain uint16, busADC uint16, shuntADC uint16, mode ui
 }
 
 // CalibrationValue Calculate the config word (uint16) for the calibration register.
-func CalibrationValue(maxVolt float64, shuntOhms float64) uint16 {
-	currentLSB := (maxVolt / shuntOhms) / currentLSBFactor
+func CalibrationValue(maxVolt float64, shuntOhms float64, gain float64) uint16 {
+	shuntMaxV := 0.08 * (math.Pow(2, gain))
+	fmt.Printf("shuntMaxV: %fV\n", shuntMaxV)
 
-	return uint16(math.Trunc(0.04096 / currentLSB * shuntOhms))
+	maxPossibleI := shuntMaxV / shuntOhms
+	fmt.Printf("maxPossibleI: %fA\n", maxPossibleI)
+
+	minLSB := maxPossibleI / 32767
+	fmt.Printf("minLSB: %fA\n", minLSB)
+
+	maxLSB := maxPossibleI / 4096
+	fmt.Printf("maxLSB: %fA\n", maxLSB)
+
+	currentLSB := 0.0015
+	fmt.Printf("currentLSB: %fA\n", currentLSB)
+
+	powerLSB = 20 * currentLSB
+	fmt.Printf("powerLSB: %fW\n", powerLSB)
+
+	maxCurrent = currentLSB * 32767
+	fmt.Printf("maxCurrent: %fA\n", maxCurrent)
+
+	if maxCurrent > maxPossibleI {
+		currentOverflow = maxPossibleI
+	} else {
+		currentOverflow = maxCurrent
+	}
+	fmt.Printf("currentOverflow: %fA\n", currentOverflow)
+
+	maxShuntV = currentOverflow * shuntOhms
+	fmt.Printf("maxShuntV: %fV\n", maxShuntV)
+
+	if maxShuntV >= shuntMaxV {
+		shuntOverflow = shuntMaxV
+	} else {
+		shuntOverflow = maxShuntV
+	}
+	fmt.Printf("shuntOverflow: %fV\n", shuntOverflow)
+
+	maxPower = currentOverflow * maxVolt
+	fmt.Printf("maxPower: %fW\n", maxPower)
+
+	CurrentDivider = 0.0001 / currentLSB
+	fmt.Printf("CurrentDivider: %f\n", CurrentDivider)
+
+	PowerMultiplier = powerLSB / 1
+	fmt.Printf("PowerMultiplier: %f\n", PowerMultiplier)
+
+	return uint16(math.Trunc(0.04096 / (currentLSB * shuntOhms)))
+
+	// return uint16(math.Trunc(0.04096 / (306 * 0.004)))
 }
 
 // New Initialize and return a new ina219 device.
-func New(address uint8, i2cbus byte, shuntOhms float64, config uint16) (*INA219, error) {
+func New(address uint8, i2cbus byte, shuntOhms float64, config uint16, gain uint16) (*INA219, error) {
 	deviceBus := i2c.NewI2CBus(i2cbus)
 	ina := &INA219{
 		I2C:         deviceBus,
 		Config:      config,
-		Calibration: CalibrationValue(32, shuntOhms),
+		Calibration: CalibrationValue(16, shuntOhms, float64(gain)),
 		Address:     address,
 	}
 

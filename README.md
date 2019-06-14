@@ -1,6 +1,8 @@
 # Goina219
 
-Goina219 is a simple golang package for configuring and reading the INA219 Bidirectional Current/Power Monitor over I<sup>2</sup>C.
+_Warning: goina219 is **not** ready for primetime!_
+
+**Goina219** is a simple golang package for configuring and reading the INA219 Bidirectional Current/Power Monitor over I<sup>2</sup>C.
 
 It is currently only available for *nix systems as it leverages the `github.com/NeuralSpaz/i2c` package for I<sup>2</sup>C.
 

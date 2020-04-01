@@ -19,7 +19,7 @@ It is currently only available for *nix systems as it leverages the `github.com/
 With the dependancies installed, simply use:
 
 ```bash
-go get github.com/jeffalyanak/ina219
+go get github.com/jeffalyanak/goina219
 
 ```
 
@@ -82,7 +82,7 @@ fmt.Printf(
 |Range|Parameter|
 |---|---|
 |16V|goina219.Range16V|
-|32V|goina219.Range16V|
+|32V|goina219.Range32V|
 
 ### Gain options:
 
